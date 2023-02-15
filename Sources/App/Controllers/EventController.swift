@@ -10,6 +10,9 @@ import Vapor
 import EventSource
 
 struct EventController: RouteCollection {
+    
+    var eventSources:[EventSource] = [EventSource]()
+    
     func boot(routes: RoutesBuilder) throws {
         let events = routes.grouped("events")
         events.get(use: index)
@@ -22,7 +25,9 @@ struct EventController: RouteCollection {
     }
 
     func create(req: Request) async throws -> String {
-       ""
+        // decode url for event from request...
+        // for now hard code
+        ""
     }
 
     func delete(req: Request) async throws -> HTTPStatus {
