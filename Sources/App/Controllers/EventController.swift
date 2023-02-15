@@ -9,25 +9,57 @@ import Fluent
 import Vapor
 import EventSource
 
-struct EventController: RouteCollection {
+class EventController: RouteCollection {
     
-    var eventSources:[EventSource] = [EventSource]()
+    var eventSources:[String:EventSource] = [String:EventSource]()
     
     func boot(routes: RoutesBuilder) throws {
         let events = routes.grouped("events")
         events.get(use: index)
         events.post(use: create)
-    
     }
 
     func index(req: Request) async throws -> String {
-        ""
+        var res = ""
+        for es in eventSources {
+            let events = es.value.events()
+            res += "\(es.value.url) \(es.value.readyState) \(es.value.lastEventId)\n\(events)\n\n"
+        }
+        return res
     }
 
     func create(req: Request) async throws -> String {
-        // decode url for event from request...
-        // for now hard code
-        ""
+        let conInfo = try req.content.decode(EventSourceConnectionRequest.self)
+        if let sourceAddress = req.peerAddress?.ipAddress {
+            let es = EventSource(url: conInfo.url)
+                                 
+            eventSources[sourceAddress] = es
+            Task {
+                req.logger.info("Registered \(es) for client \(sourceAddress)")
+                es.onOpen {
+                    req.application.logger.info("Opened \(es)")
+                }
+                
+                es.onMessage { addr, name, value in
+                    req.application.logger.info("\(addr), \(name), \(value)")
+                }
+                
+                es.onComplete { n, b, e in
+                    req.application.logger.info("\(n) \(b) \(e)")
+                }
+                
+                es.addEventListener("null") { id, event, data in
+                    req.application.logger.info("\(id), \(event), \(data)")
+                }
+                es.addEventListener("user-connected") { id, event, data in
+                    req.application.logger.info("\(id), \(event), \(data)")
+                }
+                es.connect()
+                req.application.logger.info("Connecting...")
+                req.logger.info("\(es.onOpen),\(es.onMessage)")
+            }
+        }
+        return "registered."
     }
 
     func delete(req: Request) async throws -> HTTPStatus {

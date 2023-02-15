@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct EventSourceConnection:Codable {
+struct EventSourceConnectionRequest:Codable {
     let url:URL
-    let authToken:String
+    let authToken:String?
 }
