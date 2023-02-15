@@ -41,22 +41,46 @@ class EventController: RouteCollection {
                 }
                 
                 es.onMessage { addr, name, value in
-                    req.application.logger.info("\(addr), \(name), \(value)")
+                    var s = "onMessage - "
+                    s += addr ?? ""
+                    s += ","
+                    s += name ?? ""
+                    s += ","
+                    s += value ?? ""
+                    req.application.logger.info("\(s)")
                 }
                 
                 es.onComplete { n, b, e in
-                    req.application.logger.info("\(n) \(b) \(e)")
+                    var s = "onComplete - "
+                    s += n == nil ?  "" : "\(n!)"
+                    s += ","
+                    s += b == false ? "false" : "true"
+                    s += ","
+                    s += e?.localizedDescription ?? ""
+                    req.application.logger.info("\(s)")
                 }
                 
                 es.addEventListener("null") { id, event, data in
-                    req.application.logger.info("\(id), \(event), \(data)")
+                    var s = "eventListener - "
+                    s += id ?? ""
+                    s += ","
+                    s += event ?? ""
+                    s += ","
+                    s += data ?? ""
+                    req.application.logger.info("\(s)")
                 }
+                
                 es.addEventListener("user-connected") { id, event, data in
-                    req.application.logger.info("\(id), \(event), \(data)")
+                    var s = "eventListener - "
+                    s += id ?? ""
+                    s += ","
+                    s += event ?? ""
+                    s += ","
+                    s += data ?? ""
+                    req.application.logger.info("\(s)")
                 }
                 es.connect()
-                req.application.logger.info("Connecting...")
-                req.logger.info("\(es.onOpen),\(es.onMessage)")
+                req.application.logger.info("Connecting to event source at \(sourceAddress)...")
             }
         }
         return "registered."
