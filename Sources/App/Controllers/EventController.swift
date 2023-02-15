@@ -31,7 +31,7 @@ class EventController: RouteCollection {
     func create(req: Request) async throws -> String {
         let conInfo = try req.content.decode(EventSourceConnectionRequest.self)
         if let sourceAddress = req.peerAddress?.ipAddress {
-            let es = EventSource(url: conInfo.url)
+            let es = EventSource(url: conInfo.eventSourceURL)
                                  
             eventSources[sourceAddress] = es
             Task {

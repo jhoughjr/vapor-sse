@@ -8,6 +8,19 @@
 import Foundation
 
 struct EventSourceConnectionRequest:Codable {
-    let url:URL
+    let eventSourceURL:URL
     let authToken:String?
 }
+
+struct EventSourceAddListenerRequest:Codable {
+    let eventSourceURL:URL
+    let authToken:String?
+    let add:[String]
+}
+
+struct EventSourceRemoveListenerRequest:Codable {
+    let eventSourceURL:URL
+    let authToken:String?
+    let remove:[String]
+}
+
